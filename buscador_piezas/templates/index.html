@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Piezas</title>
+</head>
+<body>
+    <h1>Buscador de Piezas</h1>
+    <form method="POST">
+        <label for="busqueda">Ingresa el nombre de la pieza o el part number:</label>
+        <input type="text" id="busqueda" name="busqueda" required>
+        <button type="submit">Buscar</button>
+    </form>
+
+    {% if resultados %}
+        <h2>Resultados de la búsqueda:</h2>
+        <ul>
+            {% for resultado in resultados %}
+                <li>
+                    <strong>Index number:</strong> {{ resultado[1] }}<br>
+                    <strong>Part number:</strong> {{ resultado[2] }}<br>
+                    <strong>Item name:</strong> {{ resultado[3] }}<br>
+                    <strong>Unit per ASSY:</strong> {{ resultado[4] }}<br>
+                    <strong>AVAIL:</strong> {{ resultado[5] }}<br>
+                    <strong>Chapter:</strong> {{ resultado[6] }}<br>
+                    <strong>PDF URL:</strong> <a href="/manuals/{{ resultado[7] }}" target="_blank">Abrir PDF</a>
+
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No se encontraron resultados.</p>
+    {% endif %}
+
+    <a href="/">Volver a la página principal</a>
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD App</title>
+</head>
+<body>
+    <h1>Lista de Piezas</h1>
+    <a href="{{ url_for('crud.create') }}">Crear nuevo</a>
+    <ul>
+        {% for item in items %}
+        <li>
+            <strong>{{ item[1] }}</strong>: {{ item[2] }} {{ item[3] }}
+            <a href="{{ url_for('crud.update', item_id=item[0]) }}">Editar</a>
+            <a href="{{ url_for('crud.delete', item_id=item[0]) }}">Eliminar</a>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <a href="/">Volver a la página principal</a>
+
+</body>
+</html>
