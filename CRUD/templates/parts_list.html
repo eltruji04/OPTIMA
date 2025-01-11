@@ -1,23 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>CRUD App</title>
-</head>
-<body>
-    <h1>Lista de Piezas</h1>
-    <a href="{{ url_for('crud.create') }}">Crear nuevo</a>
+  <head>
+    <!-- Defines the character encoding used in the HTML document -->
+    <meta charset="UTF-8" />
+
+    <!-- The title of the page that appears in the browser tab -->
+    <title>Parts List</title>
+  </head>
+  <body>
+    <!-- Main title of the page indicating the parts list is being displayed -->
+    <h1>Parts List</h1>
+
+    <!-- Link to create a new item (redirects to the route for creating a new part) -->
+    <a href="{{ url_for('crud.create') }}">Create New</a>
+
+    <!-- List of items (parts) fetched from the database and displayed in the browser -->
     <ul>
-        {% for item in items %}
-        <li>
-            <strong>{{ item[1] }}</strong>: {{ item[2] }} {{ item[3] }}
-            <a href="{{ url_for('crud.update', item_id=item[0]) }}">Editar</a>
-            <a href="{{ url_for('crud.delete', item_id=item[0]) }}">Eliminar</a>
-        </li>
-        {% endfor %}
+      <!-- Iterates over the items in the database (items are passed from the Flask view) -->
+      {% for item in items %}
+
+      <li>
+        <!-- Displays the item name in bold (item[1] is the item name) -->
+        <strong>{{ item[1] }}</strong>:
+
+        <!-- Displays the item description (item[2] is the description) -->
+        {{ item[2] }}
+
+        <!-- Displays the chapter number related to the item (item[3] is the chapter number) -->
+        (Chapter {{ item[3] }})
+
+        <!-- Link to edit the item (redirects to the edit route with the item ID) -->
+        <a href="{{ url_for('crud.update', item_id=item[0]) }}">Edit</a>
+
+        <!-- Link to delete the item (redirects to the delete route with the item ID) -->
+        <a href="{{ url_for('crud.delete', item_id=item[0]) }}">Delete</a>
+      </li>
+      {% endfor %}
     </ul>
 
-    <a href="/">Volver a la página principal</a>
-
-</body>
+    <!-- Link to go back to the main page (redirects to the main route) -->
+    <a href="{{ url_for('index') }}">Back to Main Page</a>
+  </body>
 </html>

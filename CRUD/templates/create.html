@@ -1,20 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Crear Item</title>
-</head>
-<body>
-    <h1>Crear nuevo Item</h1>
+  <head>
+    <!-- Specifies the character encoding used in the HTML document -->
+    <meta charset="UTF-8" />
+
+    <!-- The title of the page that appears in the browser tab -->
+    <title>Create New Item</title>
+  </head>
+  <body>
+    <!-- Main title of the page indicating the creation of a new item -->
+    <h1>Create New Item</h1>
+
+    <!-- Form to input and submit details of the new item -->
     <form method="POST">
-        <label>part_number:</label>
-        <input type="text" name="part_number" required><br>
-        <label>item_name:</label>
-        <textarea name="item_name" required></textarea><br>
-        <label>chapter</label>
-        <input type="number" name="chapter" required>
-        <button type="submit">Guardar</button>
+      <!-- Label and input field for entering the part number (required for submission) -->
+      <label>Part Number:</label>
+      <input type="text" name="part_number" required /><br />
+
+      <!-- Label and textarea for entering the item name (required for submission) -->
+      <label>Item Name:</label>
+      <textarea name="item_name" required></textarea><br />
+
+      <!-- Label and input field for entering the chapter number (required for submission) -->
+      <label>Chapter:</label>
+      <input type="number" name="chapter" required /><br />
+
+      <!-- Submit button to save the new item -->
+      <button type="submit">Save</button>
     </form>
-    <a href="/">Regresar</a>
-</body>
+
+    <!-- Link to go back to the list of parts (redirects to the parts list page) -->
+    <a href="{{ url_for('crud.parts_list') }}">Back to Parts List</a>
+  </body>
 </html>

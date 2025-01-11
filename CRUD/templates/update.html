@@ -1,20 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Actualizar Item</title>
-</head>
-<body>
-    <h1>Actualizar Item</h1>
+  <head>
+    <!-- Meta charset declaration to ensure proper encoding of characters -->
+    <meta charset="UTF-8" />
+
+    <!-- Title of the page displayed in the browser tab -->
+    <title>Update Item</title>
+  </head>
+  <body>
+    <!-- Main heading for the page -->
+    <h1>Update Item</h1>
+
+    <!-- Form to update an existing item in the database -->
     <form method="POST">
-        <label>part_number:</label>
-        <input type="text" name="part_number" value="{{ item[1] }}" required><br>
-        <label>item_name:</label>
-        <textarea name="item_name">{{ item[2] }}</textarea><br>
-        <label>chapter</label>
-        <input type="number" name="chapter" value="{{ item[3] }}" required><br>
-        <button type="submit">Guardar</button>
+      <!-- Label and input field for the part number of the item -->
+      <label>Part Number:</label>
+
+      <input
+        type="text"
+        name="part_number"
+        value="{{ item[1] }}"
+        required
+      /><br />
+
+      <label>Item Name:</label>
+
+      <textarea name="item_name" required>{{ item[2] }}</textarea><br />
+
+      <!-- Label and input field for the chapter number -->
+      <label>Chapter:</label>
+
+      <input
+        type="number"
+        name="chapter"
+        value="{{ item[3] }}"
+        required
+      /><br />
+      <!-- Submit button to save the updated item -->
+
+      <button type="submit">Save</button>
     </form>
-    <a href="/">Regresar</a>
-</body>
+
+    <!-- Link to navigate back to the parts list page -->
+    <a href="{{ url_for('crud.parts_list') }}">Back to Parts List</a>
+  </body>
 </html>
