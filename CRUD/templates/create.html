@@ -1,35 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Specifies the character encoding used in the HTML document -->
     <meta charset="UTF-8" />
-
-    <!-- The title of the page that appears in the browser tab -->
-    <title>Create New Item</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create/Edit Item</title>
   </head>
   <body>
-    <!-- Main title of the page indicating the creation of a new item -->
-    <h1>Create New Item</h1>
-
-    <!-- Form to input and submit details of the new item -->
+    <h1>Create/Edit Item</h1>
+    <!-- Form for Creating or Editing an Item -->
     <form method="POST">
-      <!-- Label and input field for entering the part number (required for submission) -->
-      <label>Part Number:</label>
-      <input type="text" name="part_number" required /><br />
+      <!-- Input for Part Number -->
+      <label>Part Number:</label><br />
+      <input
+        type="text"
+        name="part_number"
+        value="{{ item.part_number if item else '' }}"
+        required
+      /><br /><br />
 
-      <!-- Label and textarea for entering the item name (required for submission) -->
-      <label>Item Name:</label>
-      <textarea name="item_name" required></textarea><br />
+      <!-- Input for Item Name -->
+      <label>Item Name:</label><br />
+      <input
+        type="text"
+        name="item_name"
+        value="{{ item.item_name if item else '' }}"
+        required
+      /><br /><br />
 
-      <!-- Label and input field for entering the chapter number (required for submission) -->
-      <label>Chapter:</label>
-      <input type="number" name="chapter" required /><br />
+      <!-- Input for Chapter -->
+      <label>Chapter:</label><br />
+      <input
+        type="number"
+        name="chapter"
+        value="{{ item.chapter if item else '' }}"
+        required
+      /><br /><br />
 
-      <!-- Submit button to save the new item -->
+      <!-- Input for Reminder Date -->
+      <label>Reminder Date:</label><br />
+      <input
+        type="date"
+        name="reminder_date"
+        value="{{ item.reminder_date if item else '' }}"
+      /><br /><br />
+
+      <!-- Submit Button -->
       <button type="submit">Save</button>
     </form>
 
-    <!-- Link to go back to the list of parts (redirects to the parts list page) -->
-    <a href="{{ url_for('crud.parts_list') }}">Back to Parts List</a>
+    <!-- Link to return to the main page -->
+    <a href="/">Back to the main page</a>
   </body>
 </html>

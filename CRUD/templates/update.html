@@ -1,47 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Meta charset declaration to ensure proper encoding of characters -->
     <meta charset="UTF-8" />
-
-    <!-- Title of the page displayed in the browser tab -->
-    <title>Update Item</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Item</title>
   </head>
   <body>
-    <!-- Main heading for the page -->
-    <h1>Update Item</h1>
-
-    <!-- Form to update an existing item in the database -->
+    <h1>Edit Item</h1>
+    <!-- Form for Editing an Existing Item -->
     <form method="POST">
-      <!-- Label and input field for the part number of the item -->
-      <label>Part Number:</label>
-
+      <!-- Input for Part Number -->
+      <label for="part_number">Part Number:</label><br />
       <input
         type="text"
+        id="part_number"
         name="part_number"
-        value="{{ item[1] }}"
+        value="{{ item.part_number }}"
         required
-      /><br />
+      /><br /><br />
 
-      <label>Item Name:</label>
+      <!-- Input for Item Name -->
+      <label for="item_name">Item Name:</label><br />
+      <input
+        type="text"
+        id="item_name"
+        name="item_name"
+        value="{{ item.item_name }}"
+        required
+      /><br /><br />
 
-      <textarea name="item_name" required>{{ item[2] }}</textarea><br />
-
-      <!-- Label and input field for the chapter number -->
-      <label>Chapter:</label>
-
+      <!-- Input for Chapter -->
+      <label for="chapter">Chapter:</label><br />
       <input
         type="number"
+        id="chapter"
         name="chapter"
-        value="{{ item[3] }}"
+        value="{{ item.chapter }}"
         required
-      /><br />
-      <!-- Submit button to save the updated item -->
+      /><br /><br />
 
-      <button type="submit">Save</button>
+      <!-- Input for Reminder Date -->
+      <label for="reminder_date">Reminder Date:</label><br />
+      <input
+        type="date"
+        id="reminder_date"
+        name="reminder_date"
+        value="{{ item.reminder_date }}"
+      /><br /><br />
+
+      <!-- Submit Button -->
+      <button type="submit">Save Changes</button>
     </form>
 
-    <!-- Link to navigate back to the parts list page -->
-    <a href="{{ url_for('crud.parts_list') }}">Back to Parts List</a>
+    <!-- Link to return to the main page -->
+    <a href="/">Back to the main page</a>
   </body>
 </html>
