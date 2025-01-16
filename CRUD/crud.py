@@ -49,19 +49,21 @@ def get_upcoming_notifications():
         items = cursor.fetchall()
 
         for item_id, item_name, reminder_date in items:
-            reminder_date = datetime.strptime(reminder_date, '%Y-%m-%d').date()
-            if today == reminder_date - timedelta(days=1):  # One day before
-                notifications.append({
-                    'item_name': item_name,
-                    'message': f"Tomorrow is the reminder date for '{item_name}'."
-                })
-            elif today == reminder_date:  # Same day
-                notifications.append({
-                    'item_name': item_name,
-                    'message': f"Today is the reminder date for '{item_name}'."
-                })
+            if reminder_date:  # Check if reminder_date is not empty
+                reminder_date = datetime.strptime(reminder_date, '%Y-%m-%d').date()
+                if today == reminder_date - timedelta(days=1):  # One day before
+                    notifications.append({
+                        'item_name': item_name,
+                        'message': f"Tomorrow is the reminder date for '{item_name}'."
+                    })
+                elif today == reminder_date:  # Same day
+                    notifications.append({
+                        'item_name': item_name,
+                        'message': f"Today is the reminder date for '{item_name}'."
+                    })
 
     return notifications
+
 
 # Route: Display list of parts
 @crud_app.route('/')
