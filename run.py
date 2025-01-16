@@ -25,8 +25,8 @@ app.register_blueprint(finder_app, url_prefix='/finder')
 # Register the CRUD Blueprint with the URL prefix '/crud'
 app.register_blueprint(crud_app, url_prefix='/crud')
 
-if __name__ == "__main__":
-     # Run the application in debug mode to enable 
-     # live reloading and detailed error messages 
-     # during development
+if __name__ == '__main__':
+    # Run the application in debug mode to enable
+    # live reloading and detailed error messages
+    # during development
     app.run(debug=True)
