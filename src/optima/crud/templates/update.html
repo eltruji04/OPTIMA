@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Item</title>
+  </head>
+  <body>
+    <h1>Edit Item</h1>
+    <!-- Form for Editing an Existing Item -->
+    <form method="POST">
+      <!-- Input for Part Number -->
+      <label for="part_number">Part Number:</label><br />
+      <input
+        type="text"
+        id="part_number"
+        name="part_number"
+        value="{{ item.part_number }}"
+        required
+      /><br /><br />
+
+      <!-- Input for Item Name -->
+      <label for="item_name">Item Name:</label><br />
+      <input
+        type="text"
+        id="item_name"
+        name="item_name"
+        value="{{ item.item_name }}"
+        required
+      /><br /><br />
+
+      <!-- Input for Chapter -->
+      <label for="chapter">Chapter:</label><br />
+      <input
+        type="number"
+        id="chapter"
+        name="chapter"
+        value="{{ item.chapter }}"
+        required
+      /><br /><br />
+
+      <!-- Input for Reminder Date -->
+      <label for="reminder_date">Reminder Date:</label><br />
+      <input
+        type="date"
+        id="reminder_date"
+        name="reminder_date"
+        value="{{ item.reminder_date }}"
+      /><br /><br />
+
+      <!-- Submit Button -->
+      <button type="submit">Save Changes</button>
+    </form>
+
+    <!-- Link to return to the main page -->
+    <a href="/">Back to the main page</a>
+  </body>
+</html>

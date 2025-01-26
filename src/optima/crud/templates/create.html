@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create/Edit Item</title>
+  </head>
+  <body>
+    <h1>Create/Edit Item</h1>
+    <!-- Form for Creating or Editing an Item -->
+    <form method="POST">
+      <!-- Input for Part Number -->
+      <label>Part Number:</label><br />
+      <input
+        type="text"
+        name="part_number"
+        value="{{ item.part_number if item else '' }}"
+        required
+      /><br /><br />
+
+      <!-- Input for Item Name -->
+      <label>Item Name:</label><br />
+      <input
+        type="text"
+        name="item_name"
+        value="{{ item.item_name if item else '' }}"
+        required
+      /><br /><br />
+
+      <!-- Input for Chapter -->
+      <label>Chapter:</label><br />
+      <input
+        type="number"
+        name="chapter"
+        value="{{ item.chapter if item else '' }}"
+        required
+      /><br /><br />
+
+      <!-- Input for Reminder Date -->
+      <label>Reminder Date:</label><br />
+      <input
+        type="date"
+        name="reminder_date"
+        value="{{ item.reminder_date if item else '' }}"
+      /><br /><br />
+
+      <!-- Submit Button -->
+      <button type="submit">Save</button>
+    </form>
+
+    <!-- Link to return to the main page -->
+    <a href="/">Back to the main page</a>
+  </body>
+</html>
