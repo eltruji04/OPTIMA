@@ -1,6 +1,8 @@
 import sqlite3
 
+# Nombre de la base de datos
 DB_NAME = 'parts.db'
+
 
 def search_parts(finder):
     """
@@ -8,11 +10,16 @@ def search_parts(finder):
 
     Parameters:
         finder (str): The search term used to find matching parts 
-        in the database.
+                      in the database. It can be part number or item name.
 
     Returns:
         list: A list of tuples representing rows from the 
-        Parts table that match the search term.
+              Parts table that match the search term. Each tuple contains the 
+              data of a matching part.
+    
+    Example:
+        search_parts('brake') 
+        Returns a list of parts where part number or item name contains 'brake'.
     """
     # Connect to the database
     conn = sqlite3.connect(DB_NAME)

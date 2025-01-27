@@ -1,8 +1,16 @@
 import sqlite3
 from datetime import datetime, timedelta
 
-# Inicialización de la base de datos
+# Database initialization
 def init_db():
+    """
+    Initializes the database by creating the 'items' table if it does not exist.
+
+    This table stores information about parts, including the part number,
+    item name, chapter, reminder date, and whether the notification has been shown.
+
+    If the database does not exist, it will be created automatically.
+    """
     with sqlite3.connect('active_parts.db') as conn:
         cursor = conn.cursor()
         cursor.execute('''
@@ -17,8 +25,17 @@ def init_db():
         ''')
     print("Database initialized")
 
-# Función para obtener las notificaciones próximas
+# Function to get upcoming notifications
 def get_upcoming_notifications():
+    """
+    Retrieves notifications for parts that have an upcoming reminder date.
+
+    Notifications are generated if the reminder date is tomorrow or today.
+    Parts that have already shown a notification are filtered out.
+
+    Returns:
+        list: A list of dictionaries with the item name and notification message.
+    """
     notifications = []
     today = datetime.now().date()
 
@@ -47,8 +64,17 @@ def get_upcoming_notifications():
 
     return notifications
 
-# Función para crear una nueva parte
+# Function to create a new part
 def create_part(part_number, item_name, chapter, reminder_date):
+    """
+    Creates a new part in the database with the provided information.
+
+    Args:
+        part_number (str): The part number.
+        item_name (str): The item name.
+        chapter (int): The chapter number.
+        reminder_date (str): The reminder date (in 'YYYY-MM-DD' format).
+    """
     with sqlite3.connect('active_parts.db') as conn:
         cursor = conn.cursor()
         cursor.execute('''
@@ -57,8 +83,17 @@ def create_part(part_number, item_name, chapter, reminder_date):
         ''', (part_number, item_name, chapter, reminder_date))
         conn.commit()
 
-# Función para obtener todas las partes
+# Function to get all parts or a specific part
 def get_parts(item_id=None):
+    """
+    Retrieves parts from the database. If a part ID is provided, only that part is returned.
+
+    Args:
+        item_id (int, optional): The ID of the specific part to retrieve. If not provided, all parts are returned.
+
+    Returns:
+        list: A list of parts (dictionaries) if no ID is provided, or a single dictionary if an ID is provided.
+    """
     with sqlite3.connect('active_parts.db') as conn:
         cursor = conn.cursor()
         if item_id:
@@ -70,8 +105,18 @@ def get_parts(item_id=None):
             items = cursor.fetchall()
             return items
 
-# Función para actualizar una parte existente
+# Function to update an existing part
 def update_part(item_id, part_number, item_name, chapter, reminder_date):
+    """
+    Updates the information of an existing part in the database.
+
+    Args:
+        item_id (int): The ID of the part to update.
+        part_number (str): The new part number.
+        item_name (str): The new item name.
+        chapter (int): The new chapter number.
+        reminder_date (str): The new reminder date (in 'YYYY-MM-DD' format).
+    """
     with sqlite3.connect('active_parts.db') as conn:
         cursor = conn.cursor()
         cursor.execute('''
@@ -81,8 +126,14 @@ def update_part(item_id, part_number, item_name, chapter, reminder_date):
         ''', (part_number, item_name, chapter, reminder_date, item_id))
         conn.commit()
 
-# Función para eliminar una parte
+# Function to delete an existing part
 def delete_part(item_id):
+    """
+    Deletes a part from the database based on its ID.
+
+    Args:
+        item_id (int): The ID of the part to delete.
+    """
     with sqlite3.connect('active_parts.db') as conn:
         cursor = conn.cursor()
         cursor.execute('DELETE FROM items WHERE id = ?', (item_id,))
