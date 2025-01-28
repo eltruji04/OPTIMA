@@ -2,15 +2,17 @@
 """Handles database paths"""
 
 from flask import Blueprint, render_template, request
-from .database import search_parts  # Import the search function from the database module
+from .database import (
+    search_parts,
+)  # Import the search function from the database module
 
 # Create a Blueprint for the Finder module
 finder_app = Blueprint(
-    'finder', 
-    __name__, 
-    template_folder='templates', 
-    static_folder='static', 
-    static_url_path='/static/finder'
+    "finder",
+    __name__,
+    template_folder="templates",
+    static_folder="static",
+    static_url_path="/static/finder",
 )
 
 
@@ -30,7 +32,7 @@ def index():
     Returns:
         str: The HTML content rendered by the 'finder.html' template,
              containing the search results or an empty form.
-    
+
     Example:
         When a search is performed:
             - A search query is submitted via POST request.
