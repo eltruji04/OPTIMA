@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Handles database paths"""
+
 from flask import Blueprint, render_template, request
 from .database import search_parts  # Import the search function from the database module
 

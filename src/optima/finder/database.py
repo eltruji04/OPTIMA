@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Find the pieces in the database"""
+
 import sqlite3
 
 # Nombre de la base de datos
