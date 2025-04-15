@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Active Parts Database Manager.
+Active Parts Database Manager
 
 This script provides functions to manage an SQLite database that stores information about
 active parts, including their part number, name, chapter, and reminder dates.
@@ -16,8 +16,11 @@ import sqlite3
 from datetime import datetime, timedelta
 from contextlib import contextmanager
 
+
 # Configure logging
 LOGGER = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 
 # Database file name
 ACTIVE_PARTS_DB = "parts.db"
@@ -53,6 +56,9 @@ class DatabaseManager:
         conn = sqlite3.connect(self.db_path)
         try:
             yield conn
+        except sqlite3.Error as e:
+            LOGGER.error("Database error: %s", e)
+            raise
         finally:
             conn.close()
 
@@ -79,13 +85,17 @@ class DatabaseManager:
         """
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute(query, params)
-            if commit:
-                conn.commit()
-            if fetch_one:
-                return cursor.fetchone()
-            if fetch_all:
-                return cursor.fetchall()
+            try:
+                cursor.execute(query, params)
+                if commit:
+                    conn.commit()
+                if fetch_one:
+                    return cursor.fetchone()
+                if fetch_all:
+                    return cursor.fetchall()
+            except sqlite3.Error as e:
+                LOGGER.error("Error executing query: %s", e)
+                raise
 
 
 # Initialize the database manager
@@ -96,9 +106,9 @@ def init_db():
     """
     Initialize the database.
 
-    Creates the 'items' table if it does not exist.
+    Creates the 'items' table and the 'users' table if they do not exist.
     """
-    query = """
+    query_items = """
         CREATE TABLE IF NOT EXISTS items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             part_number TEXT NOT NULL,
@@ -108,7 +118,16 @@ def init_db():
             notification_shown INTEGER DEFAULT 0
         )
     """
-    db_manager.execute_query(query, commit=True)
+    query_users = """
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL,
+            role TEXT NOT NULL DEFAULT 'user'
+        )
+    """
+    db_manager.execute_query(query_items, commit=True)
+    db_manager.execute_query(query_users, commit=True)
     LOGGER.info("Database initialized: %s", ACTIVE_PARTS_DB)
 
 
@@ -126,29 +145,32 @@ def get_upcoming_notifications():
     today = datetime.now().date()
 
     query = """
-        SELECT id, item_name, reminder_date 
-        FROM items 
+        SELECT id, item_name, reminder_date
+        FROM items
         WHERE reminder_date IS NOT NULL AND notification_shown = 0
     """
     items = db_manager.execute_query(query, fetch_all=True)
 
     for item_id, item_name, reminder_date in items:
-        if reminder_date:
-            reminder_date = datetime.strptime(reminder_date, "%Y-%m-%d").date()
-            if today == reminder_date - timedelta(days=1):
-                notifications.append(
-                    {
-                        "item_name": item_name,
-                        "message": f"Tomorrow is the reminder date for '{item_name}'.",
-                    }
-                )
-            elif today == reminder_date:
-                notifications.append(
-                    {
-                        "item_name": item_name,
-                        "message": f"Today is the reminder date for '{item_name}'.",
-                    }
-                )
+        try:
+            if reminder_date:
+                reminder_date = datetime.strptime(reminder_date, "%Y-%m-%d").date()
+                if today == reminder_date - timedelta(days=1):
+                    notifications.append(
+                        {
+                            "item_name": item_name,
+                            "message": f"Tomorrow is the reminder date for '{item_name}'.",
+                        }
+                    )
+                elif today == reminder_date:
+                    notifications.append(
+                        {
+                            "item_name": item_name,
+                            "message": f"Today is the reminder date for '{item_name}'.",
+                        }
+                    )
+        except ValueError:
+            LOGGER.warning("Invalid date format for item '%s'. Skipping.", item_name)
 
     return notifications
 
@@ -163,13 +185,24 @@ def create_part(part_number: str, item_name: str, chapter: int, reminder_date: s
         chapter (int): The maintenance chapter number.
         reminder_date (str): The reminder date in YYYY-MM-DD format.
     """
+    if not part_number or not item_name or not reminder_date:
+        LOGGER.error("Missing required fields for creating a part.")
+        raise ValueError("All fields are required.")
+
+    try:
+        datetime.strptime(reminder_date, "%Y-%m-%d")
+    except ValueError:
+        LOGGER.error("Invalid date format for reminder_date: %s", reminder_date)
+        raise ValueError("Reminder date must be in YYYY-MM-DD format.")
+
     query = """
-        INSERT INTO items (part_number, item_name, chapter, reminder_date) 
+        INSERT INTO items (part_number, item_name, chapter, reminder_date)
         VALUES (?, ?, ?, ?)
     """
     db_manager.execute_query(
         query, (part_number, item_name, chapter, reminder_date), commit=True
     )
+    LOGGER.info("Created part: %s (%s)", item_name, part_number)
 
 
 def get_parts(item_id: int = None):
@@ -206,20 +239,37 @@ def update_part(
         chapter (int): The updated maintenance chapter number.
         reminder_date (str): The updated reminder date in YYYY-MM-DD format.
     """
+    if not part_number or not item_name or not reminder_date:
+        LOGGER.error("Missing required fields for updating a part.")
+        raise ValueError("All fields are required.")
+
+    try:
+        datetime.strptime(reminder_date, "%Y-%m-%d")
+    except ValueError:
+        LOGGER.error("Invalid date format for reminder_date: %s", reminder_date)
+        raise ValueError("Reminder date must be in YYYY-MM-DD format.")
+
     query = """
-        UPDATE items 
-        SET part_number = ?, item_name = ?, chapter = ?, reminder_date = ?, notification_shown = 0 
+        UPDATE items
+        SET part_number = ?, item_name = ?, chapter = ?, reminder_date = ?
         WHERE id = ?
     """
     db_manager.execute_query(
         query, (part_number, item_name, chapter, reminder_date, item_id), commit=True
     )
+    LOGGER.info("Updated part with ID: %s", item_id)
 
 
-def delete_part(item_id):
+def delete_part(item_id: int):
+    """
+    Delete a part from the database.
+
+    Args:
+        item_id (int): The ID of the part to delete.
+    """
     query = "DELETE FROM items WHERE id = ?"
     db_manager.execute_query(query, (item_id,), commit=True)
-    print(f"Deleted item with ID: {item_id}")
+    LOGGER.info("Deleted part with ID: %s", item_id)
 
 
 if __name__ == "__main__":
