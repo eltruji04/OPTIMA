@@ -11,7 +11,10 @@ name = "OPTIMA"
 description = "Aeronautic mechanic utility website"
 dependencies = [
     "Flask",
-]
+    "python-dotenv",
+] 
+    
+
 requires-python = ">=3.6"
 classifiers = [
     "Operating System :: OS Independent",
