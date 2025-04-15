@@ -6,6 +6,4 @@ version.py
 tmp/
 venv/
 
-parts.db
-
-active_parts.db
+*.db
