@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Handles database search functionality for the Finder module."""
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, session, flash, redirect, url_for
+from functools import wraps
 
 # Import the search function from the database module
 from .database import search_parts
@@ -16,7 +17,34 @@ finder_app = Blueprint(
 )
 
 
+# Helper function to check if the user is authenticated
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            flash("You must log in to access this page.", "danger")
+            return redirect(url_for("login.login"))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+# Decorator to restrict access based on user role
+def role_required(role):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if session.get("role") != role:
+                flash("You do not have permission to access this page.", "danger")
+                return redirect(url_for("login.login"))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
+# Route: Main Page of the Finder Module
 @finder_app.route("/", methods=["GET", "POST"])
+@login_required
+@role_required("admin")  # Solo los administradores pueden acceder
 def index():
     """
     Handles the main page of the Finder module.
@@ -26,7 +54,7 @@ def index():
         - POST: Processes the search query and displays the results.
 
     Returns:
-        str: The HTML content rendered by the 'finder.html' template,
+        str: The HTML content rendered by the 'admin_finder.html' template,
              containing either the search results or an empty form.
 
     Example:
@@ -46,7 +74,7 @@ def index():
             # Validate the search query
             if not finder:
                 return render_template(
-                    "finder.html",
+                    "admin_finder.html",
                     error="The search field cannot be empty."
                 )
 
@@ -56,7 +84,7 @@ def index():
             # If no results are found, display a message
             if not results:
                 return render_template(
-                    "finder.html",
+                    "admin_finder.html",
                     error="No results found for your search."
                 )
 
@@ -64,9 +92,9 @@ def index():
             # Log the error and return a user-friendly message
             print(f"Error during search: {e}")
             return render_template(
-                "finder.html",
+                "admin_finder.html",
                 error="An error occurred during the search. Please try again."
             )
 
     # Render the template with the search results
-    return render_template("finder.html", results=results)
+    return render_template("admin_finder.html", results=results)
