@@ -272,5 +272,30 @@ def delete_part(item_id: int):
     LOGGER.info("Deleted part with ID: %s", item_id)
 
 
+def get_part_by_id(item_id):
+    """
+    Retrieves a single part by its ID from the database.
+
+    Args:
+        item_id (int): The ID of the part to retrieve.
+
+    Returns:
+        dict: A dictionary containing the part's details, or None if not found.
+    """
+    with sqlite3.connect("parts.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM items WHERE id = ?", (item_id,))
+        row = cursor.fetchone()
+        if row:
+            return {
+                "id": row[0],
+                "part_number": row[1],
+                "item_name": row[2],
+                "chapter": row[3],
+                "reminder_date": row[4],  # Ensure this is in YYYY-MM-DD format
+            }
+        return None
+
+
 if __name__ == "__main__":
     init_db()

@@ -12,13 +12,22 @@ from .database import search_parts
 finder_app = Blueprint(
     "finder",
     __name__,
-    template_folder="templates",  # Templates folder
-    static_folder="static",       # Static files folder
+    template_folder="templates",  # Folder containing HTML templates
+    static_folder="static",       # Folder containing static files (CSS, JS, etc.)
 )
 
 
 # Helper function to check if the user is authenticated
 def login_required(f):
+    """
+    Decorator to ensure that only authenticated users can access certain routes.
+
+    Args:
+        f (function): The route function to protect.
+
+    Returns:
+        function: A decorated function that checks authentication.
+    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "user_id" not in session:
@@ -30,6 +39,15 @@ def login_required(f):
 
 # Decorator to restrict access based on user role
 def role_required(role):
+    """
+    Decorator to ensure that only users with a specific role can access certain routes.
+
+    Args:
+        role (str): The required role (e.g., "admin").
+
+    Returns:
+        function: A decorated function that checks the user's role.
+    """
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
@@ -44,7 +62,7 @@ def role_required(role):
 # Route: Main Page of the Finder Module
 @finder_app.route("/", methods=["GET", "POST"])
 @login_required
-@role_required("admin")  # Solo los administradores pueden acceder
+@role_required("admin")  # Only administrators can access this route
 def index():
     """
     Handles the main page of the Finder module.

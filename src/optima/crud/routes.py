@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Handles database paths"""
+"""Handles CRUD operations for managing parts in the database."""
 
 import sqlite3
 from functools import wraps
@@ -11,15 +11,16 @@ from .database import (
     create_part,
     get_parts,
     update_part,
+    get_part_by_id,
 )
 
 # Create a Blueprint for CRUD functionality
 crud_app = Blueprint(
     "crud",
     __name__,
-    template_folder="templates",
-    static_folder="static",
-    static_url_path="/static/crud",
+    template_folder="templates",  # Folder containing HTML templates
+    static_folder="static",       # Folder containing static files (CSS, JS, etc.)
+    static_url_path="/static/crud",  # URL path for static files
 )
 
 # Initialize the database (if it doesn't exist)
@@ -28,6 +29,15 @@ init_db()
 
 # Helper function to check if the user is authenticated
 def login_required(f):
+    """
+    Decorator to ensure that only authenticated users can access certain routes.
+
+    Args:
+        f (function): The route function to protect.
+
+    Returns:
+        function: A decorated function that checks authentication.
+    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "user_id" not in session:
@@ -39,6 +49,15 @@ def login_required(f):
 
 # Decorator to restrict access based on user role
 def role_required(role):
+    """
+    Decorator to ensure that only users with a specific role can access certain routes.
+
+    Args:
+        role (str): The required role (e.g., "admin").
+
+    Returns:
+        function: A decorated function that checks the user's role.
+    """
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
@@ -55,6 +74,8 @@ def role_required(role):
 def check_access():
     """
     Verifies if the user is authenticated and has the required role (admin) for the CRUD module.
+
+    This hook runs before every request within the CRUD Blueprint.
     """
     # Allow access to public routes (if any)
     public_routes = []
@@ -74,14 +95,15 @@ def check_access():
 
 # Route: Display list of parts
 @crud_app.route("/")
+@login_required
+@role_required("admin")
 def parts_list():
     """
-    Displays all parts stored in the database along with
-    notifications for upcoming reminders.
+    Displays all parts stored in the database along with notifications for upcoming reminders.
 
     Returns:
-        render_template: Renders the 'admin_parts_list.html' template
-                          with a list of parts and upcoming notifications.
+        render_template: Renders the 'admin_parts_list.html' template with a list of parts
+                         and upcoming notifications.
     """
     items = get_parts()
     notifications = get_upcoming_notifications()
@@ -90,62 +112,86 @@ def parts_list():
 
 # Route: Create a new part
 @crud_app.route("/create", methods=["GET", "POST"])
+@login_required
+@role_required("admin")
 def create():
     """
-    Creates a new part in the database. If the method is GET,
-    it renders the form to create a part. If the method is POST,
-    it processes the form data and stores the new part.
+    Creates a new part in the database. If the method is GET, it renders the form to create a part.
+    If the method is POST, it processes the form data and stores the new part.
 
     Returns:
-        render_template or redirect: Renders the creation form or redirects to parts list after successful creation.
+        render_template or redirect: Renders the creation form or redirects to the parts list
+                                     after successful creation.
     """
     if request.method == "POST":
-        part_number = request.form["part_number"]
-        item_name = request.form["item_name"]
-        chapter = int(request.form["chapter"])
-        reminder_date = request.form["reminder_date"]
+        try:
+            part_number = request.form["part_number"]
+            item_name = request.form["item_name"]
+            chapter = int(request.form["chapter"])
+            reminder_date = request.form["reminder_date"]
 
-        # Create the part in the database
-        create_part(part_number, item_name, chapter, reminder_date)
-        return redirect(url_for("crud.parts_list"))
+            # Validate input
+            if not part_number or not item_name or not reminder_date:
+                raise ValueError("All fields are required.")
+
+            # Create the part in the database
+            create_part(part_number, item_name, chapter, reminder_date)
+            flash("Part created successfully.", "success")
+            return redirect(url_for("crud.parts_list"))
+        except Exception as e:
+            flash(f"Error creating part: {e}", "danger")
 
     return render_template("admin_create.html")
 
 
 # Route: Update an existing part
 @crud_app.route("/update/<int:item_id>", methods=["GET", "POST"])
+@login_required
+@role_required("admin")
 def update(item_id):
     """
-    Updates an existing part in the database. If the method is GET,
-    it fetches the part details and renders the update form. If the method
-    is POST, it processes the form data and updates the part.
+    Updates an existing part in the database. If the method is GET, it fetches the part details
+    and renders the update form. If the method is POST, it processes the form data and updates the part.
 
     Args:
         item_id (int): The ID of the part to be updated.
 
     Returns:
-        render_template or redirect: Renders the update form or redirects to parts list after successful update.
+        render_template or redirect: Renders the update form or redirects to the parts list
+                                     after successful update.
     """
-    if request.method == "POST":
-        part_number = request.form["part_number"]
-        item_name = request.form["item_name"]
-        chapter = int(request.form["chapter"])
-        reminder_date = request.form["reminder_date"]
-
-        # Update the part in the database
-        update_part(item_id, part_number, item_name, chapter, reminder_date)
+    # Fetch the part details from the database
+    item = get_part_by_id(item_id)
+    if not item:
+        flash(f"Item with ID {item_id} not found.", "danger")
         return redirect(url_for("crud.parts_list"))
 
-    # Fetch the part details
-    item = get_parts(item_id)
-    if not item:
-        return f"Item with ID {item_id} not found", 404
+    if request.method == "POST":
+        try:
+            part_number = request.form["part_number"]
+            item_name = request.form["item_name"]
+            chapter = int(request.form["chapter"])
+            reminder_date = request.form["reminder_date"]
 
+            # Validate input
+            if not part_number or not item_name or not reminder_date:
+                raise ValueError("All fields are required.")
+
+            # Update the part in the database
+            update_part(item_id, part_number, item_name, chapter, reminder_date)
+            flash("Part updated successfully.", "success")
+            return redirect(url_for("crud.parts_list"))
+        except Exception as e:
+            flash(f"Error updating part: {e}", "danger")
+
+    # Pass the item data to the template for pre-filling the form
     return render_template("admin_update.html", item=item)
 
 
 # Route: Delete a part
 @crud_app.route("/delete/<int:item_id>", methods=["GET", "POST"])
+@login_required
+@role_required("admin")
 def delete(item_id):
     """
     Deletes a part from the database based on its ID.
@@ -156,9 +202,14 @@ def delete(item_id):
     Returns:
         redirect: Redirects to the parts list page after deletion.
     """
-    with sqlite3.connect("parts.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM items WHERE id = ?", (item_id,))
-        conn.commit()
+    try:
+        with sqlite3.connect("parts.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM items WHERE id = ?", (item_id,))
+            conn.commit()
+
+        flash("Part deleted successfully.", "success")
+    except Exception as e:
+        flash(f"Error deleting part: {e}", "danger")
 
     return redirect(url_for("crud.parts_list"))
